@@ -10,14 +10,17 @@ extern printf, scanf
 segment .data
     msj     db "Por favor, ingrese un caracter: ",0,10
     msj1    db "El codigo ASCII de %llc en binario es: ",0
+    rpt     db "%llu",0
     msj2    db 10,"Desea Salir [Y/N]",0
     fmt     db "%llc"
+    bsize   db 8
 segment .bss
-    chtr    resq    1
+    chtr    resq    1       ;caracter
     aux     resq    1
 segment .text 
 global main 					
-main:	
+main:
+
 sub rsp,0x20	
 read_char:  
             mov rcx,msj
@@ -26,26 +29,28 @@ read_char:
             mov rcx,fmt
             mov rdx,chtr
             call scanf
-
+            
             mov rcx,msj1
-            mov rdx,chtr
+            mov rdx,qword[chtr]
             call printf
 
-            mov rax,0x80
-            mov r8,8
+            mov rbx,0x80
+            ;mov r11,8
 print_bit:  
-            test qword[chtr],rax
+            test qword[chtr],rbx
             jz print_0
-            mov rcx,1
+            mov rcx,rpt
+            mov rdx,1
             call printf
             jmp skip
 print_0:    
-            mov rcx,0
+            mov rcx,rpt
+            mov rdx,0
             call printf
 skip:       
-            shr rax,1
-            dec r8
-            cmp r8,0
+            shr rbx,1
+            dec byte[bsize]
+            cmp byte[bsize],0
             jne print_bit
 
             mov rcx,msj2
